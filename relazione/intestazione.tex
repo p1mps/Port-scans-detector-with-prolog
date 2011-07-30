@@ -1,0 +1,41 @@
+
+\chead{}
+
+%\lhead{\includegraphics[height=1cm]{logo.png}}
+\chead{}
+%\lhead{\includegraphics[height=1cm]{../common/logo2.png}}
+\rhead{\the\titolo}
+\lfoot{Andrea Imparato\\}
+\cfoot{\thepage/\pageref{TotPages}}
+\rfoot{imparato.andrea@gmail.com}
+%\renewcommand{\headrulewidth}{0.4pt} 
+%\renewcommand{\footrulewidth}{0.4pt} 
+\catcode`\ì=\active \def ì{\`{\i}}
+\catcode`\í=\active \def í{\'{\i}}
+\catcode`\è=\active \def è{\`e}
+\catcode`\é=\active \def é{\'e}
+\catcode`\È=\active \def È{\`E}
+\catcode`\É=\active \def É{\'E}
+\catcode`\à=\active \def à{\`a}
+\catcode`\á=\active \def á{\'a}
+\catcode`\À=\active \def À{\`A}
+\catcode`\Á=\active \def Á{\'A}
+\catcode`\ù=\active \def ù{\`u}
+\catcode`\ú=\active \def ú{\'u}
+\catcode`\ò=\active \def ò{\`o}
+\catcode`\ó=\active \def ó{\'o}
+\usepackage{xcolor}
+\usepackage{multirow}
+\definecolor{altncolor}{rgb}{1,1,1}
+\usepackage[linkbordercolor=altncolor]{hyperref}
+%definizioni per gli url
+\usepackage{hyperref} 
+\makeatletter
+\def\url@leostyle{%
+  \@ifundefined{selectfont}{\def\UrlFont{\sf}}{\def\UrlFont{\small\ttfamily}}}
+\makeatother
+\urlstyle{leo}
+%fullscreen
+%\hypersetup{backref, pdfpagemode=FullScreen, colorlinks=false, urlbordercolor= altncolor} 
+\hypersetup{backref, colorlinks=false, urlbordercolor= altncolor} 
+
