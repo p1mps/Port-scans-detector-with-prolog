@@ -9,7 +9,6 @@ import alice.tuprolog.Long;
 
 public class Analyzer extends Thread{ 
 	
-	private Blackboard blackboard;
 	private Prolog engine;
 	private Vector<TCPPacket> packets = new Vector<TCPPacket>();
 	
@@ -229,13 +228,4 @@ public class Analyzer extends Thread{
 	}
 
 
-
-	public Blackboard getBlackboard() {
-		return blackboard;
-	}
-
-
-	public void setBlackboard(Blackboard blackboard) {
-		this.blackboard = blackboard;
-	}
 }
