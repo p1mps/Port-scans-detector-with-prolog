@@ -110,20 +110,46 @@ del traffico e in modo continuativo la sua analisi. Se viene rilevato uno scanni
 
 
 
-
-
-
-
-
-
 \section{Scenari}
 
+In questa sezione verranno illustrati i vari possibili scenari in cui l'applicazione vedrà il suo utilizzo. 
+In una prima fase l'applicazione verrà installata su uno degli host della propria rete, verrà messa dunque in modalità di sniffing. 
+Dopo di ciò i casi in cui ci si potrà trovare sono fondamentalmente 2:
+
+\begin{itemize}
+
+\item l'host sul quale è installata l'applicazione non ha servizi attivi, dunque tutte le sue porte sono chiuse.
+
+\item l'host ha attivi alcuni servizi.
+
+\end{itemize}
+
+
+L'applicazione dunque monitorerà l'host ed "informerà" l'eventuale amministratore di una scansione di porte.\\
+Ora dobbiamo vedere quali sono i possibili casi per questa scansione:
+
+
+\begin{itemize}
+
+\item un host remoto effettua una scansione generale su tutte le porte dell'host.
+
+\item un host remoto scansiona solo un piccolo range di porte, queste possono essere proprio le stesse porte attive sull'host, diciamo 
+\emph{n porte} oppure le porte dell'host ed alcune altre, diciamo dunque \emph{n + k}.
+
+\end{itemize}
 
 
 
 
 
 \section{Progettazione}
+
+
+
+
+
+
+
 
 
 \section{Tecnologie}
