@@ -36,7 +36,7 @@ public class Analyzer extends Thread{
 	
 	public Term createPacket(TCPPacket tcp_packet){
 		
-		Term t1 = new Int(tcp_packet.src_port);
+	    Term t1 = new Int(tcp_packet.src_port);
 	    Term t2 = new Int(tcp_packet.dst_port);
 	    Term t3 = null;
 	    Long t7 = null;
@@ -106,10 +106,10 @@ public class Analyzer extends Thread{
 	}
 	
 	/* la stringa indica porta_chiusa o connessione_tcp */
-	public String createStringTcpScan(Integer n,String s){
+	public String createStringScan(Integer n,String scan,String s){
 		
 		
-		String t1 = "tcp_scan(X,Y):- ";
+		String t1 = scan;
 		String t2 = "";
 		String n1 = "";
 		String n2 = "";
@@ -150,7 +150,7 @@ public class Analyzer extends Thread{
 		
 		
 		t1 += t2;
-		
+
 		return t1;
 
 		
@@ -162,12 +162,19 @@ public class Analyzer extends Thread{
 		
 		try {
 		
-			String generated_rule = createStringTcpScan(n,"porta_chiusa");
-			String generated_rule2 = createStringTcpScan(n,"connessione_tcp");
+			String generated_rule = createStringScan(n,"tcp_scan(X,Y):- ","porta_chiusa");
+			String generated_rule2 = createStringScan(n,"tcp_scan(X,Y):- ","connessione_tcp");
+			System.out.println(generated_rule);
+			System.out.println(generated_rule2);
+
+			String generated_rule3 = createStringScan(n,"syn_scan(X,Y):- ","connessione_syn");
+			System.out.println(generated_rule3);
 			Theory rule = new Theory(generated_rule);
 			Theory rule2 = new Theory(generated_rule2);
+			Theory rule3 = new Theory(generated_rule3);
 			engine.addTheory(rule);
 			engine.addTheory(rule2);
+			engine.addTheory(rule3);
 		
 			
 		} catch (InvalidTheoryException e) {
@@ -209,22 +216,71 @@ public class Analyzer extends Thread{
 			new Var("X"),
 			new Var("Y"),
 		};
-		
-		Term query = new Struct("tcp_scan",	args2);
-			
+		/*
+		Term args3[] = {
+		new Var("SOURCE"),
+		new Var("DESTINATION"),
+		new Var("SD"),
+		new Var("DP"),
+		};		
+		*/
+
+		Term query = new Struct("tcp_scan",args2);
+		Term query2 = new Struct("syn_scan",args2);
+		/*Term query3 = new Struct("connessione_syn",args3);
+
 	    try {
-	    	
+	
+		SolveInfo info = engine.solve(query3);
+		while (info.isSuccess()){
+			System.out.println("solution: "+info.getSolution()+
+			" - bindings: "+info);
+			if (engine.hasOpenAlternatives()){
+				info=engine.solveNext();
+			} else {
+			break;
+		}
+
+	     	SolveInfo solve3 = engine.solve(query3);
+	       	Term solution3 = solve3.getSolution();
+	       	System.out.println(solution3);
+		return true;
+	  }
+	}
+	    catch(Exception e){
+    
+
+	        	
+	    }
+	*/
+	try{
+  	
 	       	SolveInfo solve = engine.solve(query);
 	       	Term solution = solve.getSolution();
 	       	System.out.println(solution);
+		return true;
+
+	    }
+	    catch(Exception e){
+	       
+	    
+	        	
+	    }
+	
+		try{
+
+	       	SolveInfo solve2 = engine.solve(query2);
+	       	Term solution2 = solve2.getSolution();
+	       	System.out.println(solution2);
+
 	       	return true;
 	    }
 	    catch(Exception e){
 	       
-	    	return false;
+
 	        	
 	    }
-					
+	return false;					
 	}
 
 

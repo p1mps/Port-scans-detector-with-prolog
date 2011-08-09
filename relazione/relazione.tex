@@ -109,6 +109,24 @@ del traffico e in modo continuativo la sua analisi. Se viene rilevato uno scanni
 \end{itemize}
 
 
+\section{Strumenti}
+
+Nel progetto sono stati utilizzati principalmente 2 tool di supporto:
+
+\begin{itemize}
+
+\item \textbf{nmap}: il port scanner open source più utilizzato. Ha moltissime opzioni ed implementa praticamente 
+ogni tecnica di port scanning conosciuta.
+
+\item \textbf{wireshark}: uno \emph{sniffer} per l'analisi del traffico. Questo tool l'abbiamo utilizzato per effettuare
+il \emph{reverse engineering} di come nmap effettua il port scanning e per salvare il traffico per l'analisi del detector.
+
+
+
+\end{itemize}
+
+
+
 
 \section{Scenari}
 
@@ -134,9 +152,14 @@ Ora dobbiamo vedere quali sono i possibili casi per questa scansione:
 \item un host remoto effettua una scansione generale su tutte le porte dell'host.
 
 \item un host remoto scansiona solo un piccolo range di porte, queste possono essere proprio le stesse porte attive sull'host, diciamo 
-\emph{n porte} oppure le porte dell'host ed alcune altre, diciamo dunque \emph{n + k}.
+\emph{n porte} oppure le porte dell'host ed alcune altre, dunque \emph{n + k}.
 
 \end{itemize}
+
+
+In tutti i 3 i casi il nostro detector deve avvisare della scansione in corso.
+
+
 
 
 
@@ -144,8 +167,48 @@ Ora dobbiamo vedere quali sono i possibili casi per questa scansione:
 
 \section{Progettazione}
 
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=10cm]{tcp.png}
+\caption{\label{Protocollo tcp} Protocollo Tcp}
+\end{figure}
 
 
+
+Nella figura è rappresentata una \emph{connessione tcp} \emph{client-server}. Come si sa, una connessione tcp è formata dal cosidetto
+\emph{Three-way handshake} che puo' essere riassunto così:
+
+\begin{itemize}
+
+\item il client invia al server un pacchetto con \textbf{flag SYN} impostato ad 1 (attivo) e il campo \emph{sequence number}
+inizializzato ad un numero casuale \emph{x}.
+
+
+\item il server risponde con un pacchetto con \textbf{flag SYN} e \textbf{flag ACK} impostati ad 1, il campo \textbf{sequence number}
+impostato ad un valore casuale y e il campo \emph{Acknowledgment number} uguale a \emph{x + 1} e 
+
+\item dopo di che il client risponde al messaggio del server con un pacchetto con \textbf{flag ACK} attivo, il campo \emph{Acknowledgment number} impostato a y+1 e il campo \textbf{sequence number} uguale a \emph{x + 1}. Ora il client puo' iniziare
+l'invio dei dati al server.
+
+
+\item se la porta sulla quale vuole comunicare il server è chiusa dopo il primo passaggio il server risponde con un pacchetto
+con \textbf{flag RST} (reset) attivo e con campo \emph{sequence number} e {Acknowledgment number} come nel secondo passaggio prima. Con il flag rst la connessione tcp viene interrotta e in questo modo il client riconosce che la porta sul server è chiusa e che quindi
+non puo' comunicare.
+
+
+\end{itemize}
+
+\newpage
+
+Un port scanning non è altro che 
+
+
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=15cm]{classi.png}
+\caption{\label{Diagramma delle classi} Diagramma delle classi}
+\end{figure}
 
 
 

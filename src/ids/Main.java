@@ -32,8 +32,9 @@ public class Main {
 		analyzer.initializeKB(fileKb,connCount * 2);
 		
 		/* avvio retract base di conoscenza per ottimizzare prestazioni */
-		RetractTimer retractTimer = new RetractTimer(new Integer(args[3]), analyzer);
-		
+		if(args[2].equals("sniffer")){
+			RetractTimer retractTimer = new RetractTimer(new Integer(args[3]), analyzer);
+		}
 			
 		if (args[2].equals("sniffer")) {
 			/* modalità sniffer live */

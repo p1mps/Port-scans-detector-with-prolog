@@ -26,8 +26,7 @@ public class RetractTimer {
 	public RetractTimer(int seconds,Analyzer analyzer) {
 		this.analyzer = analyzer;
 		timer.schedule(new Retract(), delay, seconds*1000);
-        System.out.println("retractTimer schedulato ogni " + new Integer(seconds));
-		  
+		System.out.println("retractTimer schedulato ogni " + new Integer(seconds) + " secondi");	  
 	}
 
 	
