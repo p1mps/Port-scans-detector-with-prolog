@@ -3,7 +3,8 @@
 % impostazioni generali del documento, valide per tutti gli scritti.
 
 \usepackage{graphicx} % per l'inserimento di immagini.
-
+\usepackage{listings}
+\lstloadlanguages{PROLOG}
 \usepackage[italian]{babel} % Adatta LaTeX alle convenzioni tipografiche italiane,
 % e ridefinisce alcuni titoli in italiano, come "Capitolo" al posto di "Chapter", se il vostro documento in italiano
 \usepackage[utf8]{inputenc} % Consente l'uso caratteri accentati italiani
@@ -51,12 +52,12 @@ In questo progetto è stato realizzato un \emph{port scanners detector} che util
 di un port scanning.\\
 
 Il port scanning è una tecnica che viene utilizzata per l'identificazione delle porte "aperte" in un host remoto.
-Come si sa, infatti, quando si apre un servizio questo si mette in ascolto su una determinata porta, assegnata dal sistema 
-operativo, delle connessioni in entrata.
+Come si sa, infatti, quando si apre un servizio questo si mette in ascolto delle connessioni in entrata su una determinata porta, assegnata dal sistema 
+operativo.
 
 Alcuni di questi servizi molto spesso possono essere vulnerabili e quindi sfruttabili dall'esterno per ottenere accesso
 non autorizzato. Il \emph{port scanning} viene utilizzato dunque per il riconoscimento di quali servizi sono attivi ed
-è il primo passo infatti prima di un eventuale attacco.\\
+è il primo passo prima di un eventuale attacco.\\
 
 
 Esistono vari software sul mercato che eseguono l'analisi degli host di una rete per il riconoscimento di intrusioni 
@@ -131,7 +132,8 @@ il \emph{reverse engineering} di come nmap effettua il port scanning e per salva
 \section{Scenari}
 
 In questa sezione verranno illustrati i vari possibili scenari in cui l'applicazione vedrà il suo utilizzo. 
-In una prima fase l'applicazione verrà installata su uno degli host della propria rete, verrà messa dunque in modalità di sniffing. 
+In una prima fase l'applicazione verrà installata su uno degli host della propria rete, verrà messa dunque in modalità di sniffing o oppure
+gli verrà caricato un file di traffico salvato precendentemente. 
 Dopo di ciò i casi in cui ci si potrà trovare sono fondamentalmente 2:
 
 \begin{itemize}
@@ -157,15 +159,12 @@ Ora dobbiamo vedere quali sono i possibili casi per questa scansione:
 \end{itemize}
 
 
-In tutti i 3 i casi il nostro detector deve avvisare della scansione in corso.
+In tutti e due i casi il nostro detector deve avvisare della scansione in corso.
 
 
 
 
-
-
-
-\section{Progettazione}
+\section{Protocollo Tcp e port scanning}
 
 \begin{figure}[htbp]
 \centering
@@ -187,20 +186,64 @@ inizializzato ad un numero casuale \emph{x}.
 \item il server risponde con un pacchetto con \textbf{flag SYN} e \textbf{flag ACK} impostati ad 1, il campo \textbf{sequence number}
 impostato ad un valore casuale y e il campo \emph{Acknowledgment number} uguale a \emph{x + 1} e 
 
-\item dopo di che il client risponde al messaggio del server con un pacchetto con \textbf{flag ACK} attivo, il campo \emph{Acknowledgment number} impostato a y+1 e il campo \textbf{sequence number} uguale a \emph{x + 1}. Ora il client puo' iniziare
+\item il client risponde al messaggio del server con un pacchetto con \textbf{flag ACK} attivo, il campo \emph{Acknowledgment number} impostato a y + 1 e il campo \textbf{sequence number} uguale a \emph{x + 1}. Ora il client puo' iniziare
 l'invio dei dati al server.
 
 
-\item se la porta sulla quale vuole comunicare il server è chiusa dopo il primo passaggio il server risponde con un pacchetto
-con \textbf{flag RST} (reset) attivo e con campo \emph{sequence number} e {Acknowledgment number} come nel secondo passaggio prima. Con il flag rst la connessione tcp viene interrotta e in questo modo il client riconosce che la porta sul server è chiusa e che quindi
-non puo' comunicare.
+\item se la porta del server sulla quale vuole comunicare il client è chiusa, dopo il primo passaggio il server risponde con un pacchetto con \textbf{flag RST} (reset) attivo e con campo \emph{sequence number} e {Acknowledgment number} come nel secondo passaggio prima. Con il flag rst la connessione tcp viene interrotta e in questo modo il client riconosce che la porta sul server è chiusa e che quindi non puo' comunicare.
 
 
 \end{itemize}
 
 \newpage
 
-Un port scanning non è altro che 
+Uno port scanning non è altro che il tentativo di aprire porte su di un server e riportare quali di queste sono aperte e quali sono
+chiuse. Il nostro ports scan detector riesce a riconoscere 2 tipi di port scanning:
+
+\begin{itemize}
+
+\item \textbf{TCP connect scan}: il client completa tutto il \emph{Three-way handshake} su 
+ognuna delle porte sottoposte a scanning. E' la tecnica più "rumorosa" perchè genera molto traffico ma è anche quella più
+affidabile.
+
+\item \textbf{SYN scan}: il client non completa tutte le fasi del protocollo TCP ma si ferma dopo che il server ha risposto con 
+il primo pacchetto con \textbf{flag SYN} attivo. Se la porta non fosse aperta infatti il server avrebbe risposto con un pacchetto con 
+flag \textbf{RST} attivo. Dunque è corretto ritenere la porta sia aperta.
+
+\end{itemize}
+
+
+
+
+\section{Progettazione}
+
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=10cm,height=10cm]{attivita.png}
+\caption{\label{Diagramma delle attivita} Diagramma delle attivita}
+\end{figure}
+
+
+
+La figura rappresenta il \emph{diagramma delle attività} dell'intero software. Come si puo' vedere
+all'inizio vengono richiesti e parametri di inizializzazione da parte dell'utente: questi sono del tipo: 
+
+
+
+\textbf{kb.pl n\_connections file.pcap sniffer seconds\_retract\_timer}: il primo parametro è la base di conoscenza
+scritta in prolog (nelle successive sezioni la descriveremo approfonditamente), il secondo parametro è il numero di connessioni
+tcp che devono essere attive affinchè venga riconosciuto un port scanning, il terzo parametro invece puo'rappresentare un 
+file di traffico "sniffato" oppure essere la stringa "sniffer": nel primo caso il software effettua l'analisi del file ed inferisce
+lo scan o meno, nel secondo caso si avvia in modalità "demone" ed effettua l'analisi \emph{online}. Infine il terzo parametro
+rappresenta il numero di secondi da aspettare affinchè venga avviato il Thread che effettua il retract dei "fatti" della base di 
+conoscenza.
+
+
+
+
+
+Questo è il diagramma delle classi del progetto:
 
 
 
@@ -211,14 +254,67 @@ Un port scanning non è altro che
 \end{figure}
 
 
+Descrizione dettagliata delle classi e dei loro metodi:\\
 
+
+\textbf{SNIFFER}
+
+\begin{itemize}
+
+\item start():
+\item readFile():
+\item receivePacket():
+
+\end{itemize}
+
+
+
+\textbf{ANALYZER}
+
+
+
+\begin{itemize}
+
+\item retractPackets():
+
+\item createPacket():
+
+\item assertPacket():
+
+\item createStringScan():
+
+\item createRuleTcpScan():
+
+\item initializeKB():
+
+\item query():
+\end{itemize}
+
+\textbf{RETRACTIMER}
 
 
 
 \section{Tecnologie}
 
+Il progetto è stato realizzato in \emph{Java}. Le librerie che sono state utilizzate sono:
+
+
+\begin{itemize}
+
+\item jpcap: porting in java della libreria pcap per l'analisi del traffico di rete.
+
+\item tuprolog: libreria java per utilizzare prolog all'interno di codice java. Tra le molte disponibili
+è stata utilizzata questa per le migliori prestazioni rispetto alle altre.
+
+\end{itemize}
+
 
 \section{Inferenza}
+\lstinputlisting{kb.pl}
+
+
+\section{Compilazione ed esecuzione del progetto}
+
 
 
 \section{Risultati}
