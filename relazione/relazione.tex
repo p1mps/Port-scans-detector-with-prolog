@@ -257,40 +257,69 @@ Questo è il diagramma delle classi del progetto:
 Descrizione dettagliata delle classi e dei loro metodi:\\
 
 
-\textbf{SNIFFER}
+\textbf{SNIFFER}: classe che effettua lo "sniffing" del traffico
 
 \begin{itemize}
 
-\item start():
-\item readFile():
-\item receivePacket():
+\item start(): avvia lo sniffer se in modalità "live"
+\item readFile(): legge da file un dump di traffico
+\item receivePacket(): ogni volta che lo sniffer riceve un pacchetto viene invocato questo metodo.
+Asserisce il pacchetto nella base di conoscenza ed effettua la query per il riconoscimento del port scanning.
 
 \end{itemize}
 
 
 
-\textbf{ANALYZER}
+\textbf{ANALYZER}: classe che si occupa dell'analisi dei pacchetti
 
 
 
 \begin{itemize}
 
-\item retractPackets():
+\item createPacket(): prende un pacchetto in formato "raw" (jpcap) e costruisce un termine prolog
+per la base di conoscenza
 
-\item createPacket():
+\item assertPacket(): asserisce il pacchetto nella base di conoscenza
 
-\item assertPacket():
 
-\item createStringScan():
 
-\item createRuleTcpScan():
+\item createRuleTcpScan(): crea le regole a partire dal paramentro \textbf{n\_connections} che fornisce l'utente. Ad esempio con 
+il parametro uguale a 4 il programma genera la seguente regola: 
 
-\item initializeKB():
 
-\item query():
+\begin{lstlisting}
+
+ tcp_scan(X,Y):- connessione_tcp(X,Y,A1,A2)
+,A1\=A2,connessione_tcp(X,Y,A3,A4)
+,A3\=A4,connessione_tcp(X,Y,A5,A6),
+A5\=A6,A2\=A4,A2\=A6,A4\=A6.
+\end{lstlisting}
+
+
+
+Il suo significato verrà illustrato meglio nella sezione \ref{Inferenza}.
+
+
+
+
+
+\item createStringScan(): metodo ausiliario per createRuleTcpScan
+
+
+
+\item initializeKB(): inizializza la base di conoscenza con il file prolog ed asserisce la regola 
+parametrica dell'utente
+
+\item query(): esegue la query per il port scanning
+
+\item retractPackets(): questo metodo esegue il retract ogni tot secondi (scelti dall'utente) di tutta la base di conoscenza.
+E' stato necessario implementare tale metodo per questioni di performance: una base di conoscenza che cresce in modo infinito
+porta a prestazioni notevolmente scarse!
+
+
 \end{itemize}
 
-\textbf{RETRACTIMER}
+\textbf{RETRACTIMER}: si occupa di avviare il thread che esegue il retract della base di conoscenza
 
 
 
@@ -310,16 +339,128 @@ Il progetto è stato realizzato in \emph{Java}. Le librerie che sono state utili
 
 
 \section{Inferenza}
+
+In questa sezione viene illustrato il "cuore" dell'applicazione e cioè le regole che definiscono
+il motore di inferenza prolog.
+
+
+
+\label{Inferenza}
 \lstinputlisting{kb.pl}
+
+Il predicato "base" all'interno della KB è \textbf{pacchetto}.
+Esso rappresenta un singolo pacchetto nel network
+ed è formato da 6 termini:
+
+\begin{itemize}
+\item SP: source port, rappresenta la porta sorgente del pacchetto	
+\item DP: destination port, rappresenta la porta destinazione del pacchetto
+\item syn o rst: rappresentano i flag SYN o RST impostati a 1 del pacchetto. Possono anche non essere presenti.
+\item DESTINATION: ip di destinazione
+\item SOURCE: ip sorgente
+\item le ultime 2 variabili rappresentano rispettivamente l' acknowledgment number e il sequence number
+\end{itemize}
+
+
+Nella base di conoscenza sono presenti anche altre 3 regole: \textbf{connessione\_tcp}, \textbf{connessione\_syn} e \textbf{porta\_chiusa}: 
+la prima rappresenta l'inferenza di una connessione tcp tra 2 host su una porta sorgente ed una di destinazione, la seconda
+una connessione "syn", cioè che si ferma dopo lo scambio dei primi 2 messaggi tra gli host e la terza la richiesta di un host di una connessione su una porta e la relativa risposta dell'host di destinazione
+di porta chiusa.
+
+
+Come avevamo precedentemente illustrato la regola "principale" della base di conoscenza è quella per il riconoscimento
+di uno scanning. Le regole per inferirlo sono 2: una per il riconoscimento di un port scanning tcp e uno per il port scanning
+syn. Le regole vengono generate come detto precedentemente utilizzando l'input dell' utente \textbf{n\_connections\_open\_port} e \textbf{n\_connections\_closed\_port} che rappresentano il numero di connessioni tcp che devono essere attive per inferire un port scanning e il numero di porte chiuse che devono essere interrogate.
+Le regole ad esempio con richiesta di 4 connessioni aperte e 3 porte chiuse sono generate così:\\
+
+
+\begin{lstlisting}
+
+ tcp_scan(X,Y):- connessione_tcp(X,Y,A1,A2),A1\=A2,
+connessione_tcp(X,Y,A3,A4),
+A3\=A4,connessione_tcp(X,Y,A5,A6)
+,A5\=A6,connessione_tcp(X,Y,A7,A8),A7\=A8,
+A2\=A4,A2\=A6,A2\=A8,A4\=A6.A4\=A8,A6\=A8.
+
+syn_scan(X,Y):- connessione_syn(X,Y,A1,A2),A1\=A2,
+connessione_syn(X,Y,A3,A4),A3\=A4
+,connessione_syn(X,Y,A5,A6),A5\=A6,
+connessione_syn(X,Y,A7,A8),A7\=A8,A2\=A4,A2\=A6,
+A2\=A8,A4\=A6.A4\=A8,A6\=A8.
+ 
+
+tcp_scan(X,Y):- porta_chiusa(X,Y,A1,A2),
+A1\=A2,porta_chiusa(X,Y,A3,A4),
+A3\=A4,porta_chiusa(X,Y,A5,A6),
+A5\=A6,A2\=A4,A2\=A6,A4\=A6.
+
+
+\end{lstlisting}
+
+
+
+Come si puo' vedere per attivare le regole sono necessarie rispettivamente n connessioni tcp o connessioni syn e n
+connessioni di porte chiuse. Sono da notare i vincoli di differenza tra le porte di destinazioni delle varie connessioni.
+
+
 
 
 \section{Compilazione ed esecuzione del progetto}
+
+Per compilare il progetto si utilizza il tool java \textbf{ant}. Un esempio 
+di parametri necessari alla compilazione su piattaforma linux:\\
+
+\textbf{sudo ant compile jar"}\\
+
+Questo comando creerà un file \emph{project.jar} all'interno della directory del progetto.\\
+
+
+Per avviare il progetto invece dare:\\
+
+\textbf{java -jar project.jar opzioni}
+
+
 
 
 
 \section{Risultati}
 
+Il progetto è stato testato in diverse condizioni di utilizzo:
+
+\begin{itemize}
+\item scan delle porte aperte e scan di porte aperte/chiuse
+\item nessuna generazione di traffico dell'host sottoposto a scan
+\item host sottoposto a scan genera molto traffico
+\item l'host viene sottoposto a tcp scan  
+\item l'host viene sottoposto a syn scan 
+
+\end{itemize}
+
+
+
+In quasi tutti i casi il software si è comportato correttamente riportando lo scan (se i parametri dell'utente erano sufficienti
+per riconoscerlo ovviamente). L'unico problema è nello syn scan. In questo particolare scan infatti per essere più "nascosto"
+possibile infatti il tool di scanning spesso genera pochissimo traffico e riesce ad eludere il nostro port scanners detector.
+
+
+
+
+
+
+
 
 
 \section{Sviluppi futuri}
+
+
+Nel futuro il progetto potrebbe essere reso un Intrusion Detection System vero e proprio con l'aggiunta
+di regole all'interno della sua base di conoscenza e la loro relativa integrazione all'interno del codice
+Java. Infine potrebbero essere usati anche approcci di apprendimento automatico per far sì che il progetto
+possa migliorare con l'esperienza e dunque limitare al massimo i falsi positivi/negativi. Ad esempio
+come dati di apprendimento si possono utilizzare i dati del Dipartimento della difesa americano presente 
+a questo \href{http://www.ll.mit.edu/mission/communications/ist/corpora/ideval/data/index.html}{indirizzo}. 
+
+
+
+
 \end{document}
