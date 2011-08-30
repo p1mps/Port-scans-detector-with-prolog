@@ -31,7 +31,7 @@
                 <path refid="classpath"/>
                 <path location="project.jar"/>
             </classpath>
-       <arg line="${kb} ${num_conn} ${file} ${retract}"/>
+       <arg line="${kb} ${num_conn_open} ${num_conn_closed} ${file} ${retract}"/>
  	</java>
     </target>
     

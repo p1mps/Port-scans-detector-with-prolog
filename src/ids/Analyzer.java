@@ -158,16 +158,16 @@ public class Analyzer extends Thread{
 	
 	
 	
-	public void createRuleTcpScan(int n){
+	public void createRuleTcpScan(int connCount,int closedCount){
 		
 		try {
 		
-			String generated_rule = createStringScan(n,"tcp_scan(X,Y):- ","porta_chiusa");
-			String generated_rule2 = createStringScan(n,"tcp_scan(X,Y):- ","connessione_tcp");
+			String generated_rule = createStringScan(closedCount,"tcp_scan(X,Y):- ","porta_chiusa");
+			String generated_rule2 = createStringScan(connCount,"tcp_scan(X,Y):- ","connessione_tcp");
 			System.out.println(generated_rule);
 			System.out.println(generated_rule2);
 
-			String generated_rule3 = createStringScan(n,"syn_scan(X,Y):- ","connessione_syn");
+			String generated_rule3 = createStringScan(connCount,"syn_scan(X,Y):- ","connessione_syn");
 			System.out.println(generated_rule3);
 			Theory rule = new Theory(generated_rule);
 			Theory rule2 = new Theory(generated_rule2);
@@ -191,13 +191,13 @@ public class Analyzer extends Thread{
 
 	/* legge da file kb.pl e crea stringa e aggiunge la regola con n premesse */
 	
-	public void initializeKB(String file,int n){
+	public void initializeKB(String file,int connCount,int closedCount){
 		 	
 		
 		try { 
 			Theory kb = new Theory(new FileInputStream(file));
 			engine.setTheory(kb);
-			createRuleTcpScan(n);
+			createRuleTcpScan(connCount,closedCount);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
