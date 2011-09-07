@@ -100,7 +100,7 @@ Sono stati progettati 2 casi d'uso principali:
 \begin{itemize}
 
 
-\item analisi \textbf{offline} da file: l'utente puo' far analizzare un file di traffico precedentemente catturato. In gergo
+\item analisi \textbf{offline} da file: l'utente può far analizzare un file di traffico precedentemente catturato. In gergo
 il traffico viene "sniffato", vengono catturati i pacchetti e salvati su file. I programmi maggiormente utilizzati per la cattura sono \textbf{tcpdump} e \textbf{Wireshark}. Il primo esegue da riga di comando e il secondo è una sua interfaccia grafica. Dopo aver catturato il traffico, l'utente esegue l'analisi del file e il sistema riporta 
 la presenza o meno di un port scanning da parte di un host remoto e il suo indirizzi ip.
 
@@ -132,7 +132,7 @@ il \emph{reverse engineering} di come nmap effettua il port scanning e per salva
 \section{Scenari}
 
 In questa sezione verranno illustrati i vari possibili scenari in cui l'applicazione vedrà il suo utilizzo. 
-In una prima fase l'applicazione verrà installata su uno degli host della propria rete, verrà messa dunque in modalità di sniffing o oppure
+In una prima fase l'applicazione verrà installata su uno degli host della propria rete, verrà messa dunque in modalità di sniffing oppure
 gli verrà caricato un file di traffico salvato precendentemente. 
 Dopo di ciò i casi in cui ci si potrà trovare sono fondamentalmente 2:
 
@@ -174,8 +174,8 @@ In tutti e due i casi il nostro detector deve avvisare della scansione in corso.
 
 
 
-Nella figura è rappresentata una \emph{connessione tcp} \emph{client-server}. Come si sa, una connessione tcp è formata dal cosidetto
-\emph{Three-way handshake} che puo' essere riassunto così:
+Nella figura è rappresentata una \emph{connessione tcp} \emph{client-server}. Come si sa, una connessione tcp è formata dal cosiddetto
+\emph{Three-way handshake} che può essere riassunto così:
 
 \begin{itemize}
 
@@ -184,13 +184,13 @@ inizializzato ad un numero casuale \emph{x}.
 
 
 \item il server risponde con un pacchetto con \textbf{flag SYN} e \textbf{flag ACK} impostati ad 1, il campo \textbf{sequence number}
-impostato ad un valore casuale y e il campo \emph{Acknowledgment number} uguale a \emph{x + 1} e 
+impostato ad un valore casuale y e il campo \emph{Acknowledgment number} uguale a \emph{x + 1} 
 
-\item il client risponde al messaggio del server con un pacchetto con \textbf{flag ACK} attivo, il campo \emph{Acknowledgment number} impostato a y + 1 e il campo \textbf{sequence number} uguale a \emph{x + 1}. Ora il client puo' iniziare
+\item il client risponde al messaggio del server con un pacchetto con \textbf{flag ACK} attivo, il campo \emph{Acknowledgment number} impostato a y + 1 e il campo \textbf{sequence number} uguale a \emph{x + 1}. Ora il client può iniziare
 l'invio dei dati al server.
 
 
-\item se la porta del server sulla quale vuole comunicare il client è chiusa, dopo il primo passaggio il server risponde con un pacchetto con \textbf{flag RST} (reset) attivo e con campo \emph{sequence number} e {Acknowledgment number} come nel secondo passaggio prima. Con il flag rst la connessione tcp viene interrotta e in questo modo il client riconosce che la porta sul server è chiusa e che quindi non puo' comunicare.
+\item se la porta del server sulla quale vuole comunicare il client è chiusa, dopo il primo passaggio il server risponde con un pacchetto con \textbf{flag RST} (reset) attivo e con campo \emph{sequence number} e {Acknowledgment number} come nel secondo passaggio prima. Con il flag rst la connessione tcp viene interrotta e in questo modo il client riconosce che la porta sul server è chiusa e che quindi non può comunicare.
 
 
 \end{itemize}
@@ -203,7 +203,7 @@ chiuse. Il nostro ports scan detector riesce a riconoscere 2 tipi di port scanni
 \begin{itemize}
 
 \item \textbf{TCP connect scan}: il client completa tutto il \emph{Three-way handshake} su 
-ognuna delle porte sottoposte a scanning. E' la tecnica più "rumorosa" perchè genera molto traffico ma è anche quella più
+ognuna delle porte sottoposte a scanning. E' la tecnica più "rumorosa" perch\`e genera molto traffico ma è anche quella più
 affidabile.
 
 \item \textbf{SYN scan}: il client non completa tutte le fasi del protocollo TCP ma si ferma dopo che il server ha risposto con 
@@ -226,17 +226,17 @@ flag \textbf{RST} attivo. Dunque è corretto ritenere la porta sia aperta.
 
 
 
-La figura rappresenta il \emph{diagramma delle attività} dell'intero software. Come si puo' vedere
-all'inizio vengono richiesti e parametri di inizializzazione da parte dell'utente: questi sono del tipo: 
+La figura rappresenta il \emph{diagramma delle attività} dell'intero software. Come si può vedere
+all'inizio vengono richiesti i parametri di inizializzazione da parte dell'utente: questi sono del tipo: 
 
 
 
 \textbf{kb.pl n\_connections file.pcap sniffer seconds\_retract\_timer}: il primo parametro è la base di conoscenza
 scritta in prolog (nelle successive sezioni la descriveremo approfonditamente), il secondo parametro è il numero di connessioni
-tcp che devono essere attive affinchè venga riconosciuto un port scanning, il terzo parametro invece puo'rappresentare un 
+tcp che devono essere attive affinch\`e venga riconosciuto un port scanning, il terzo parametro invece può rappresentare un 
 file di traffico "sniffato" oppure essere la stringa "sniffer": nel primo caso il software effettua l'analisi del file ed inferisce
-lo scan o meno, nel secondo caso si avvia in modalità "demone" ed effettua l'analisi \emph{online}. Infine il terzo parametro
-rappresenta il numero di secondi da aspettare affinchè venga avviato il Thread che effettua il retract dei "fatti" della base di 
+lo scan o meno, nel secondo caso si avvia in modalità "demone" ed effettua l'analisi \emph{online}. Infine il quarto parametro
+rappresenta il numero di secondi da aspettare affinch\`e venga avviato il Thread che effettua il retract dei "fatti" della base di 
 conoscenza.
 
 
@@ -399,7 +399,7 @@ A5\=A6,A2\=A4,A2\=A6,A4\=A6.
 
 
 
-Come si puo' vedere per attivare le regole sono necessarie rispettivamente n connessioni tcp o connessioni syn e n
+Come si può vedere per attivare le regole sono necessarie rispettivamente n connessioni tcp o connessioni syn e n
 connessioni di porte chiuse. Sono da notare i vincoli di differenza tra le porte di destinazioni delle varie connessioni.
 
 
@@ -458,7 +458,7 @@ di regole all'interno della sua base di conoscenza e la loro relativa integrazio
 Java. Infine potrebbero essere usati anche approcci di apprendimento automatico per far sì che il progetto
 possa migliorare con l'esperienza e dunque limitare al massimo i falsi positivi/negativi. Ad esempio
 come dati di apprendimento si possono utilizzare i dati del Dipartimento della difesa americano presente 
-a questo \href{http://www.ll.mit.edu/mission/communications/ist/corpora/ideval/data/index.html}{indirizzo}. 
+a questo indirizzo \href{http://goo.gl/km3RX}{http://goo.gl/km3RX}. 
 
 
 
