@@ -1,0 +1,12 @@
+Artificial intelligece university's project.
+
+Port scanner detection tool based on Java and Prolog.
+
+
+To run it just do:
+
+
+java -jar project.jar [options]
+
+
+Enjoy!
