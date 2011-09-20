@@ -43,7 +43,7 @@ di un port scanning su di un host in rete.\\
 \begin{frame}
 \frametitle{Motivazioni}
 \begin{itemize}[<+->]
-\item Tema sicurezza: conoscenza personale tool di sicurezza come \textbf{nmap} e \textbf{wireshark}
+\item Tema sicurezza: conoscenza personale tool di sicurezza come \textbf{nmap} (port scanning) e \textbf{wireshark} (sniffing)
 \item Snort IDS modulo port scanning non adeguato
 \item Prolog!
 \end{itemize}
@@ -135,6 +135,26 @@ pacchetto(SP,DP,syn,SOURCE,DESTINATION,X,0)
 \end{lstlisting}
 \end{frame}
 
+
+\begin{frame}[fragile]
+\frametitle{Inferenza scan 4 porte}
+\begin{lstlisting}
+tcp_scan(X,Y):- 
+connessione_tcp(X,Y,A1,A2),A1\=A2,
+connessione_tcp(X,Y,A3,A4),
+A3\=A4,connessione_tcp(X,Y,A5,A6)
+,A5\=A6,connessione_tcp(X,Y,A7,A8)
+,A7\=A8,A2\=A4,A2\=A6,A2\=A8,A4\=A6
+,A4\=A8,A6\=A8.
+
+syn_scan(X,Y):- 
+connessione_syn(X,Y,A1,A2)
+,A1\=A2,connessione_syn(X,Y,A3,A4),A3\=A4
+,connessione_syn(X,Y,A5,A6),A5\=A6,
+connessione_syn(X,Y,A7,A8),A7\=A8,A2\=A4,A2\=A6,
+A2\=A8,A4\=A6,A4\=A8,A6\=A8.
+\end{lstlisting}
+\end{frame}
 
 
 \begin{frame}
