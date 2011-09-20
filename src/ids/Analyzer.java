@@ -130,7 +130,6 @@ public class Analyzer extends Thread{
 			
 		}
 		
-		//if(n==2||n==4){ t1 += t2.substring(0, t2.length()-1) + "."; return t1;}
 
 		for(int i = 2; i < n; i+=2){
 			
@@ -139,17 +138,9 @@ public class Analyzer extends Thread{
 				n2 = "A"+(j+2);
 				
 				t2 += n1 + "\\=" + n2 + ",";
-				/*Integer i_integer = new Integer(j);
-				
-				//if(i_integer.equals(new Integer(i)) && i!=2)
-					t2 += ".";
-				else
-					t2+=",";
-			*/
 			}
 			
 		}
-		
 		
 		t1 += t2.substring(0, t2.length()-1) + "."; //t2;
 
