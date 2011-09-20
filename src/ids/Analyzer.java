@@ -130,6 +130,8 @@ public class Analyzer extends Thread{
 			
 		}
 		
+		if(n<3){ t1 += t2.substring(0, t2.lengt()-1) + "."; return t1;}
+
 		for(int i = 2; i < n; i+=2){
 			
 			for(int j = i; j < n; j+=2){
