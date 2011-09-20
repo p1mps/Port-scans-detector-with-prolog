@@ -380,13 +380,13 @@ Le regole ad esempio con richiesta di 4 connessioni aperte e 3 porte chiuse sono
 connessione_tcp(X,Y,A3,A4),
 A3\=A4,connessione_tcp(X,Y,A5,A6)
 ,A5\=A6,connessione_tcp(X,Y,A7,A8),A7\=A8,
-A2\=A4,A2\=A6,A2\=A8,A4\=A6.A4\=A8,A6\=A8.
+A2\=A4,A2\=A6,A2\=A8,A4\=A6,A4\=A8,A6\=A8.
 
 syn_scan(X,Y):- connessione_syn(X,Y,A1,A2),A1\=A2,
 connessione_syn(X,Y,A3,A4),A3\=A4
 ,connessione_syn(X,Y,A5,A6),A5\=A6,
 connessione_syn(X,Y,A7,A8),A7\=A8,A2\=A4,A2\=A6,
-A2\=A8,A4\=A6.A4\=A8,A6\=A8.
+A2\=A8,A4\=A6,A4\=A8,A6\=A8.
  
 
 tcp_scan(X,Y):- porta_chiusa(X,Y,A1,A2),
